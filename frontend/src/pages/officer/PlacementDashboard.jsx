@@ -16,6 +16,7 @@ import api from '../../services/api';
 
 const PlacementDashboard = () => {
   const [drives, setDrives] = useState([]);
+  const [reportData, setReportData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,10 +25,14 @@ const PlacementDashboard = () => {
 
   const fetchDrives = async () => {
     try {
-      const { data } = await api.get('/placement-drives');
-      setDrives(data);
+      const [drivesRes, reportsRes] = await Promise.all([
+        api.get('/placement-drives'),
+        api.get('/placement-drives/reports')
+      ]);
+      setDrives(drivesRes.data);
+      setReportData(reportsRes.data);
     } catch (err) {
-      console.error('Failed to fetch drives', err);
+      console.error('Failed to fetch dashboard data', err);
     } finally {
       setLoading(false);
     }
@@ -48,10 +53,10 @@ const PlacementDashboard = () => {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { title: "Total Students", value: "1,250", icon: <Users className="text-blue-500" />, desc: "Registered this year" },
-          { title: "Placed Students", value: "945", icon: <UserCheck className="text-green-500" />, desc: "Offers rolled out" },
+          { title: "Total Students", value: reportData?.totalStudents || 0, icon: <Users className="text-blue-500" />, desc: "Registered this year" },
+          { title: "Placed Students", value: reportData?.totalPlaced || 0, icon: <UserCheck className="text-green-500" />, desc: "Offers rolled out" },
           { title: "Active Drives", value: drives.filter(d => d.status !== 'Completed').length || 0, icon: <Calendar className="text-amber-500" />, desc: "Currently ongoing" },
-          { title: "Placement %", value: "75.6%", icon: <BarChart className="text-primary" />, desc: "Target: 95%" }
+          { title: "Placement %", value: `${reportData?.placementRate || 0}%`, icon: <BarChart className="text-primary" />, desc: "Target: 95%" }
         ].map((stat, i) => (
           <div key={i} className="p-6 rounded-2xl bg-card border border-border shadow-sm">
             <div className="flex justify-between items-start mb-4">

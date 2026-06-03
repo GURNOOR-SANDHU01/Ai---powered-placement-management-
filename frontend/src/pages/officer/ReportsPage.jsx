@@ -1,9 +1,38 @@
 /*
   @author Gurnoor SINGH (102316101) 
 */
-import { FileText, Download, BarChart2, PieChart, TrendingUp, Building } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { FileText, Download, BarChart2, PieChart, TrendingUp, Building, Loader2 } from 'lucide-react';
+import api from '../../services/api';
 
 const ReportsPage = () => {
+  const [reportData, setReportData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetchReports();
+  }, []);
+
+  const fetchReports = async () => {
+    try {
+      setLoading(true);
+      const { data } = await api.get('/placement-drives/reports');
+      setReportData(data);
+    } catch (err) {
+      setError('Failed to fetch reports');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  if (loading) return <div className="flex justify-center p-12"><Loader2 className="animate-spin text-primary" size={32} /></div>;
+  if (error) return <div className="text-destructive p-4 bg-destructive/10 rounded-lg">{error}</div>;
+
   return (
     <div className="space-y-6 pb-12">
       <div>
@@ -23,15 +52,21 @@ const ReportsPage = () => {
             Detailed breakdown of placement statistics, average packages, and highest offers categorized by academic branches.
           </p>
           <div className="space-y-3">
-            <button className="w-full flex items-center justify-center gap-2 py-2 bg-primary/10 text-primary font-medium rounded-lg hover:bg-primary hover:text-primary-foreground transition-all">
-              <FileText size={18} /> View Online
-            </button>
+            <div className="p-4 bg-secondary/50 rounded-lg max-h-48 overflow-y-auto">
+              {reportData && Object.entries(reportData.branchStats || {}).length > 0 ? (
+                Object.entries(reportData.branchStats).map(([branch, count]) => (
+                  <div key={branch} className="flex justify-between text-sm py-1 border-b border-border last:border-0">
+                    <span>{branch}</span>
+                    <span className="font-bold">{count} Students</span>
+                  </div>
+                ))
+              ) : (
+                <div className="text-sm text-muted-foreground text-center">No data available</div>
+              )}
+            </div>
             <div className="flex gap-2">
-              <button className="flex-1 flex items-center justify-center gap-2 py-2 bg-secondary text-secondary-foreground font-medium rounded-lg hover:bg-secondary/80 transition-all border border-border text-sm">
-                <Download size={16} /> PDF
-              </button>
-              <button className="flex-1 flex items-center justify-center gap-2 py-2 bg-secondary text-secondary-foreground font-medium rounded-lg hover:bg-secondary/80 transition-all border border-border text-sm">
-                <Download size={16} /> Excel
+              <button onClick={handlePrint} className="flex-1 flex items-center justify-center gap-2 py-2 bg-secondary text-secondary-foreground font-medium rounded-lg hover:bg-secondary/80 transition-all border border-border text-sm">
+                <Download size={16} /> Print PDF
               </button>
             </div>
           </div>
@@ -47,15 +82,21 @@ const ReportsPage = () => {
             Analyze recruiting patterns, number of offers rolled out, and packages offered by individual partner companies.
           </p>
           <div className="space-y-3">
-            <button className="w-full flex items-center justify-center gap-2 py-2 bg-primary/10 text-primary font-medium rounded-lg hover:bg-primary hover:text-primary-foreground transition-all">
-              <FileText size={18} /> View Online
-            </button>
+            <div className="p-4 bg-secondary/50 rounded-lg max-h-48 overflow-y-auto">
+              {reportData && Object.entries(reportData.companyStats || {}).length > 0 ? (
+                Object.entries(reportData.companyStats).map(([company, count]) => (
+                  <div key={company} className="flex justify-between text-sm py-1 border-b border-border last:border-0">
+                    <span>{company}</span>
+                    <span className="font-bold">{count} Offers</span>
+                  </div>
+                ))
+              ) : (
+                <div className="text-sm text-muted-foreground text-center">No data available</div>
+              )}
+            </div>
             <div className="flex gap-2">
-              <button className="flex-1 flex items-center justify-center gap-2 py-2 bg-secondary text-secondary-foreground font-medium rounded-lg hover:bg-secondary/80 transition-all border border-border text-sm">
-                <Download size={16} /> PDF
-              </button>
-              <button className="flex-1 flex items-center justify-center gap-2 py-2 bg-secondary text-secondary-foreground font-medium rounded-lg hover:bg-secondary/80 transition-all border border-border text-sm">
-                <Download size={16} /> Excel
+              <button onClick={handlePrint} className="flex-1 flex items-center justify-center gap-2 py-2 bg-secondary text-secondary-foreground font-medium rounded-lg hover:bg-secondary/80 transition-all border border-border text-sm">
+                <Download size={16} /> Print PDF
               </button>
             </div>
           </div>
@@ -71,15 +112,23 @@ const ReportsPage = () => {
             Comprehensive annual report covering all placement metrics, trends compared to previous years, and total placement percentage.
           </p>
           <div className="space-y-3">
-            <button className="w-full flex items-center justify-center gap-2 py-2 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-all shadow-sm">
-              <FileText size={18} /> View Online
-            </button>
+             <div className="p-4 bg-secondary/50 rounded-lg space-y-2">
+              <div className="flex justify-between text-sm">
+                <span>Total Students Registered</span>
+                <span className="font-bold">{reportData?.totalStudents || 0}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span>Total Placed Students</span>
+                <span className="font-bold">{reportData?.totalPlaced || 0}</span>
+              </div>
+              <div className="flex justify-between text-sm pt-2 border-t border-border">
+                <span className="font-medium">Placement Rate</span>
+                <span className="font-bold text-green-600">{reportData?.placementRate || 0}%</span>
+              </div>
+            </div>
             <div className="flex gap-2">
-              <button className="flex-1 flex items-center justify-center gap-2 py-2 bg-secondary text-secondary-foreground font-medium rounded-lg hover:bg-secondary/80 transition-all border border-border text-sm">
-                <Download size={16} /> PDF
-              </button>
-              <button className="flex-1 flex items-center justify-center gap-2 py-2 bg-secondary text-secondary-foreground font-medium rounded-lg hover:bg-secondary/80 transition-all border border-border text-sm">
-                <Download size={16} /> Excel
+              <button onClick={handlePrint} className="flex-1 flex items-center justify-center gap-2 py-2 bg-secondary text-secondary-foreground font-medium rounded-lg hover:bg-secondary/80 transition-all border border-border text-sm">
+                <Download size={16} /> Print PDF
               </button>
             </div>
           </div>

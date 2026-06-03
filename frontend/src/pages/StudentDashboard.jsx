@@ -73,9 +73,9 @@ const StudentDashboard = () => {
                   <span className="text-xs font-medium px-2 py-1 bg-secondary rounded-md text-secondary-foreground">{job.location}</span>
                   <span className="text-xs font-medium px-2 py-1 bg-secondary rounded-md text-secondary-foreground">{job.type}</span>
                 </div>
-                <button className="w-full py-2 rounded-lg bg-primary/10 text-primary font-medium group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                <Link to="/student/jobs" className="w-full py-2 rounded-lg bg-primary/10 text-primary font-medium group-hover:bg-primary group-hover:text-primary-foreground transition-all block text-center">
                   Apply Now
-                </button>
+                </Link>
               </div>
             ))}
           </div>

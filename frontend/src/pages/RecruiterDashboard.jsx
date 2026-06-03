@@ -82,7 +82,7 @@ const RecruiterDashboard = () => {
                     <span className="text-xs font-medium block leading-none mb-1">AI Match</span>
                     <span className="font-semibold text-sm">{app.match}</span>
                   </div>
-                  <Link to={`/recruiter/candidate/${i}`} className="p-2 bg-secondary text-secondary-foreground hover:bg-primary hover:text-primary-foreground rounded-lg transition-colors">
+                  <Link to={`/recruiter/applications`} className="p-2 bg-secondary text-secondary-foreground hover:bg-primary hover:text-primary-foreground rounded-lg transition-colors">
                     <ArrowRight size={18} />
                   </Link>
                 </div>
